@@ -1,0 +1,37 @@
+lua调试时可以打印出lua调用栈debug.traceback()
+
+一：lua元表查找原则
+总结Lua查找一个表元素时的规则，其实就是如下3个步骤:
+
+1.在表中查找，如果找到，返回该元素，找不到则继续
+
+2.判断该表是否有元表，如果没有元表，返回nil，有元表则继续
+
+3.判断元表有没有__index方法，如果__index方法为nil，则返回nil；如果__index方法是一个表，则重复1、2、3；如果__index方法是一个函数，则返回该函数的返回值
+
+二：lua不定长参数
+DELAY_EXECUTE_LIST = {}
+
+-- 延迟多少毫秒执行一个函数
+function DelayExecute( time,func,...)
+    
+    arg["n"] = nil
+    arg["func"] = func
+    
+    local trigger_id = CreateTimerTrigger("DelayExecuteTimerHandler",time,1)   
+    DELAY_EXECUTE_LIST[trigger_id] = arg
+    return trigger_id
+end
+
+
+function DelayExecuteTimerHandler( trigger_id )
+    local args = DELAY_EXECUTE_LIST[trigger_id]
+    if args~=nil then
+        local func = args["func"]
+        args["func"]= nil
+        
+        func( unpack(args) )
+    end
+    
+    DELAY_EXECUTE_LIST[trigger_id] = nil
+end

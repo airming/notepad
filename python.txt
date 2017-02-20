@@ -1,0 +1,5 @@
+一：python扩展库安装错误
+error: Unable to find vcvarsall.bat
+以及一些编译问题，导致原因是编译不了python的源码库，需要vs2008的编译库
+有一些人说msvc9compiler.py文件修改
+最简单的方法就是下载编译好的.whl文件进行安装 pip install *.whl

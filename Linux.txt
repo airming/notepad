@@ -1,0 +1,5 @@
+一：ssh显示中文乱码
+ssh登陆后，执行： 
+export LANG=zh_CN.gb2312
+就可以显示中文了。
+编辑/etc/sysconfig/i18n 将LANG="zh_CN.UTF-8" 改为 LANG="zh_CN.GB18030" 可永久显示中文

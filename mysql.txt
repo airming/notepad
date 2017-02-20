@@ -1,0 +1,16 @@
+1：清除表中的数据并且可将种子置一
+
+Truncate Table A
+
+2：返回当前插入或更新的行ID（自动增长的值）
+
+LAST_INSERT_ID()
+SELECT LAST_INSERT_ID() INTO nNewEmailId;
+
+3:计算时间差
+
+DATEDIFF(NOW(), applytime) 
+
+4：在win下使用命令行显示数据库show databases;时有些数据库不能显示，以及选择相应的表时提示没有权限
+换一种登入方式，用管理员的方式登录mysql -u root -p
+然后提示enter password:输入密码就是

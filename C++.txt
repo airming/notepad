@@ -1,0 +1,326 @@
+调试程序时有一些内核文件无法调试，可以下载这些符号文件
+http://msdl.microsoft.com/download/symbols
+
+
+一：const(以*号与const之间的位置关系决定)
+char * const cp : 定义一个指向字符的指针常数，即const指针，常指针。
+const char* p : 定义一个指向字符常数的指针，即常量指针。
+char const* p : 等同于const char* p。
+
+注：
+typedef　char*　pstr;
+int　mystrcmp(const　pstr　p1,const　pstr　p3);
+‘const pstr'被解释为‘char* const‘
+正确的申明：
+typedef　const　char*　pstr;
+
+
+
+二：指针函数与函数指针
+
+指针函数：
+
+指针函数是指带指针的函数，即本质是一个函数。函数返回类型是某一类型的指针
+
+     类型标识符    *函数名(参数表)
+
+      int *f(x，y)
+
+
+函数指针：
+
+函数指针是指向函数的指针变量，即本质是一个指针变量。
+
+　int (*f) (int x); /* 声明一个函数指针 */
+
+　f=func; /* 将func函数的首地址赋给指针f */
+
+
+三：指针数组与数组指针
+
+int* a[4]     指针数组     
+
+                 表示：数组a中的元素都为int型指针    
+
+                 元素表示：*a[i]   *(a[i])是一样的，因为[]优先级高于*
+
+int (*a)[4]   数组指针     
+
+                 表示：指向数组a的指针
+
+                 元素表示：(*a)[i]  
+
+注意：在实际应用中，对于指针数组，我们经常这样使用：
+
+
+typedef int* pInt;
+pInt a[4];
+
+
+三：函数参数传递方式
+指针传参：指针不会改变，只能改变地址中的值
+引用传参：可以改变地址
+
+
+ep:
+//指针传递，只能改变地址中的值
+void Exchg2(char *px, char *py)
+{
+	
+	char* tmp = px;
+	*px = *py;
+	*py = *tmp;
+	printf("*px = %c, *py = %c.\n", *px, *py);
+}
+//引用传递，可以改变参数的地址
+void Exchg1(int &px, int &py)
+{
+	
+	int tmp = px;
+	px = py;
+	py = tmp;
+	printf("*px = %c, *py = %c.\n", *px, *py);
+}
+
+int main()
+{
+	char* a = "a";
+	char* b = "b";
+	
+	
+	Exchg2(a, b);
+	printf("a = %c, b = %c.\n", *a, *b);
+	return(0);
+}
+
+四：C++ 默认构造函数
+
+比较容易理解错的两个概念
+ 
+1：任何class如果没有定义 default constructor,就会被合成出一个来（只要符合以下四个条件，才会合成有用的默认构造函数）
+2：编辑器合成出来的default constructor会明确设定class内每一个data member的默认值（成员变量的值需要自己指定）
+
+
+一直认为若程序员没有自己定义无参数的构造函数，那么编译器会自动生成默认构造函数，来进行对成员函数的初始化，但这种认为是有误的，不全面的. 
+
+默认的构造函数分为有用的和无用的，所谓无用的默认构造函数就是一个空函数、什么操作也不做，而有用的默认构造函数是可以初始化成员的函数。 
+
+对构造函数的需求也是分为两类：一类是编辑器需求，一类是程序的需求。 
+
+程序的需求：若程序需求构造函数时，就是要程序员自定义构造函数来显示的初始化类的数据成员。 
+
+编辑器的需求：编辑器的需求也分为两类：一类是无用的空的构造函数，一类是编辑器自己合成的有用的构造函数。 
+
+在用户没有自定义构造函数的情况下：
+一、由于编辑器的需求，编辑器会调用空的无用的默认构造函数。
+二、但在下列情况下：编辑器就一定会合有用的默认构造函数。 
+
+看下面的例子： 
+C++代码  收藏代码
+#include <iostream>  
+using namespace std;  
+  
+class Foo   
+{  
+public:   
+    int val;   
+    Foo *pnext;   
+};   
+  
+void foo_bar()   
+{   
+    // Oops:  program needs bar's members zeroed out   
+    Foo bar;   
+    if ( bar.val || bar.pnext )   
+        cout << "Print the content !" << endl;   
+}   
+  
+int main()  
+{  
+    foo_bar();  
+    return 0;  
+}  
+
+程序可以通过编译，但是显示：The variable 'bar' is being used without being initialized. 
+
+这就说明建立Foo bar; 这个对象编辑器并没有自动合成默认构造函数。 
+
+默认的构造函数也分为：有用的构造函数和无用的构造函数，所谓有用的构造函数就是构造函数会为我们的类做一些初始化的工作，而无用的构造函数对我们的类没有任何意义，我们常说的默认构造函数就是值有用的构造函数，英文为：nontrivial default constructor。 
+
+什么情况下编辑器才会自动合成有用的默认构造函数？（以下的默认构造函数均值有用的默认构造函数） 
+
+下面四种情况，编辑器才会背着用户自己合成默认构造函数： 
+
+一、带有“Default Constructor"的Member class Object. 
+
+如果一个类没有任何Constructor,但它内含一个带有Default Constructor的Member class Object。编辑器就会自动为此类合成一个默认的构造函数。 
+
+看下面的例子： 
+C++代码  收藏代码
+#include<iostream>  
+using namespace std;  
+  
+class Foo   
+{   
+public:   
+    Foo();   
+    Foo( int );  
+private:  
+    int val;  
+};   
+  
+Foo::Foo()  
+{  
+  cout << "Call Foo::Foo() Constructor !"<< endl;  
+  val = 0;  
+}  
+  
+Foo::Foo(int i)  
+{  
+  cout << "Call Foo::Foo(int i) Constructor !"<< endl;  
+  val = i;  
+}  
+  
+class Bar   
+{   
+public:   
+    Foo foo;   
+    char *str;   
+};   
+  
+void foo_bar() {   
+    Bar bar; // Bar::foo must be initialized here   
+    if (bar.str )   
+    {  
+        cout << "Print the content !" << endl;  
+    }   
+}   
+  
+  
+int main()  
+{  
+    foo_bar();  
+    return 0;  
+}  
+
+输出为： 
+Call Foo::Foo() Constructor ! 
+Print the content ! 
+
+类class Bar 没有自己定义的Constructor，而成员中的Foo foo; 却带有字定义的Constructor（Foo::Foo()），这种情况符合:"带有“Default Constructor"的Member class Object." 
+
+由输出结果可以看出：编辑器为class Bar合成了默认的构造函数，并调用了Foo的自定义构造函数。 
+
+那么编辑器为class Bar合成了默认的构造函数应该是什么样子呢？ 
+C++代码  收藏代码
+inline Bar::Bar()  
+{  
+ foo.Foo::Foo();  
+}  
+
+编辑器会自动合成如上的默认构造函数。 
+
+如果一个类自定义了Constructor,但它内含一个带有Default Constructor的Member class Object。编辑器就会自动扩充此类的自定义构造函数。 
+
+如果类Bar自定义了构造函数，那么编辑器会怎么做，如下代码： 
+C++代码  收藏代码
+class Bar   
+{   
+public:   
+    Bar();  
+    Foo foo;   
+    char *str;   
+};   
+  
+Bar::Bar()  
+{  
+    cout << "Call Bar::Bar() Constructor !"<< endl;  
+    str = 0;  
+}  
+
+输出为： 
+Call Foo::Foo() Constructor ! 
+Call Bar::Bar() Constructor ! 
+
+看到输出结果仍然是调用了Foo的自定义的构造函数”Call Foo::Foo() Constructor !“。 
+那么这是如何做到的呢？ 
+
+编辑器会扩充Bar自定义的构造函数，其结构如下： 
+C++代码  收藏代码
+Bar::Bar()  
+{  
+ foo.Foo::Foo();  //这里是编辑器自动添加上去的  
+   cout << "Call Bar::Bar() Constructor !"<< endl;  
+  str = 0;  
+}  
+
+
+二、如果派生列的基类中有自定义的nontrivial default constructor，那么编辑器会为每一个派生类合成一个nontrivial default constructor，以调用基类自定义的nontrivial default constructor。 
+
+三、如果一个类里隐式的含有Virtual tabel(Vtbl)或者pointer member(vptr) 
+
+vtbl或vptr需要编辑器隐式的合成出来，那么编辑器就把合成动作放在了默认构造函数里，所以编辑器必需自己产生一个构造函数来完成这些动作。 
+
+所以你的类里只要含有virtual function，那么编辑器就会生成默认的构造函数。 
+
+四、如果一个类虚继承与其他类 
+
+理由和上面一样，虚基类也需要vtbl和vptr管理，那么这些管理就需要合成构造函数来实现管理，则需要生成默认的构造函数。 
+
+所以类的基类有虚类，那么编辑器就会合成默认的构造函数。
+
+五：联合体里面的结构体不能自带构造函数，不然在vs05下编译不过，13可以编译过，目测是编译器优化过后可以在联合体定义的时候调用非默认的构造函数构造结构体
+struct mystruct
+{
+	int a;
+	int b;
+	char c;
+	mystruct() {
+		memset(this, 0, sizeof(mystruct));
+	}
+
+};
+
+typedef union
+{
+	unsigned int u;	
+	struct mystruct st;
+}UN;
+05的错误：error C2620: 成员“<unnamed-tag>::st”(属于联合“<unnamed-tag>”)具有用户定义的构造函数或不常用的默认构造函数
+
+六：有时在编译的时候会说识别不到相应的变量
+struct mystruct{
+int a;
+int b;
+}
+使用的时候突然就说b这个变量未定义，出现的原因可能是文件编码引起的，a这个变量后面可能还有还有相应的字符，可用相应的编码看看，改变一下编码格式，使用VS高级保存选项，保存一致的格式即可
+
+七：在访问一个类变量的时候，有时开销会非常大，由于类变量的内存结构是按照定义的分配的，前面的变量分配在前面，前面的变量占用空间太大，导致内存交换的时候，寄存器已经占满了，得从一级缓存或则二级缓存以及硬盘中读取数据，导致访问太慢，若变量需要经常访问最好放在前面，非经常访问的变量放在后面，可以优化访问速度
+
+八：函数传参传入一个数组，在函数中用下标访问，而不是++进行递增访问，以及传入数组的长度
+
+#define MAX_LEN 10
+void testMain(int (&testVar)[MAX_LEN]) 
+{
+	int m = testVar[0];
+}
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{	
+	int test[MAX_LEN] = { 0,1,2 };
+	testMain(test);
+	return 0;
+}
+
+九：将int转成bool消除性能警告的方法
+int a = 10;
+bool b = !!a;
+
+十：计算字符串数组长度sizeof 与strlen的区别
+sizeof是操作符，计算的是变量或者类型占内存大小，strlen计算的是字符长度，计算到\0的位置
+
+char str[20]="0123456789";
+int a=strlen(str); //a=10;
+int b=sizeof(str); //而b=20;
+
